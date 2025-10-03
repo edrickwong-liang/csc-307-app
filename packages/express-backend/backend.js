@@ -82,3 +82,13 @@ app.post("/users", (req, res) => {
   addUser(userToAdd);
   res.send();
 });
+
+const removeUser = (id) => {
+  const index = users["users_list"].findIndex((user) => user["id"] === id);
+  return index !== -1 && users["users_list"].splice(index, 1).length > 0; // short-circuit if index !== -1 isn't met, otherwise splice changes array
+};
+
+app.delete("/users/:id", (req, res) => {
+  const userToDelete = req.params["id"];
+  removeUser(userToDelete) ? res.sendStatus(204) : res.status(404).send("Resource not found.");
+});
