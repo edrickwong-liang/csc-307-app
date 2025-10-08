@@ -79,15 +79,18 @@ app.get("/users/:id", (req, res) => {
   }
 });
 
+const generateID = () => Math.floor(Math.random() * 1000).toString();
+
 const addUser = (user) => {
-  users["users_list"].push(user);
-  return user;
+  const userToPush = { ...user, id: generateID() };
+  users["users_list"].push(userToPush);
+  return userToPush;
 };
 
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
-  addUser(userToAdd);
-  res.send();
+  const createdUser = addUser(userToAdd);
+  res.status(201).json(createdUser);
 });
 
 const removeUser = (id) => {

@@ -8,14 +8,17 @@ function MyApp() {
 
   // TODO: call fetch to make HTTP DELETE request to the right route
   function removeOneCharacter(index) {
-    const updated = characters.filter((character, i) => {
-      return i !== index;
-    });
-    setCharacters(updated);
-  }
-
-  function updateList(person) {
-    setCharacters([...characters, person]);
+    const character = characters[index];
+    if (character == undefined) return;
+    fetch(`http://localhost:8000/users/${character.id}`, {method: "DELETE"})
+      .then((response) => {
+        if (response.status === 204) {
+          setCharacters((char) => char.filter((_, i) => i !== index));
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      })
   }
 
   function fetchUsers() {
@@ -32,7 +35,7 @@ function MyApp() {
 
 
   function postUser(person) {
-    const promise = fetch("Http://localhost:8000/users", {
+    const promise = fetch("http://localhost:8000/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -45,10 +48,18 @@ function MyApp() {
 
   function updateList(person) {
     postUser(person)
-      .then(() => setCharacters([...characters, person]))
+      .then((response) => {
+        if (response.status !== 201) {
+          throw new Error("Unexpected status: " + response.status);
+        }
+        return response.json();
+      })
+      .then((createdUser) => {
+          setCharacters((prevState) => [...prevState, createdUser]);
+      })
       .catch((error) => {
         console.log(error);
-      })
+      });
   }
 
   return (
